@@ -1,0 +1,7 @@
+# Linux/NVIDIA CUDA install.
+# PyTorch recommends choosing the CUDA wheel index that matches your machine.
+--index-url https://download.pytorch.org/whl/cu128
+
+torch
+numpy
+tqdm

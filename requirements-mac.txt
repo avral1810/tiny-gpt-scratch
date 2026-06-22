@@ -1,0 +1,5 @@
+# macOS install.
+# On Apple Silicon, PyTorch uses the MPS backend when available.
+torch
+numpy
+tqdm

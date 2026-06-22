@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+.agents/
+.codex/
+
+runs/*
+!runs/.gitkeep
+
+checkpoints/*
+!checkpoints/.gitkeep
+
+data/raw/*
+!data/raw/.gitkeep
