@@ -48,10 +48,12 @@ def main():
             model.train()
     model.eval()
     with torch.no_grad():
-        context = tokenizer.encode("happy")
-        tokens = torch.tensor(context, dtype=torch.long).unsqueeze(0)
+        endcoded = map(lambda x: tokenizer.encode(x.lower()), ["happy", "model", "nemar"])
+        tokens = torch.tensor(list(endcoded), dtype=torch.long)
         generated = model.generate(tokens, max_new_tokens=200)
-        print(tokenizer.decode(generated[0].tolist()))
+        for row in generated:
+            print(tokenizer.decode(row.tolist()))
+            print("\n\n")
 
 
 
