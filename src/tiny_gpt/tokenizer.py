@@ -15,4 +15,4 @@ class CharTokenizer:
 
     def decode(self, token: list[int]) -> str:
         return "".join(self.itos[i] for i in token)
- 
+    

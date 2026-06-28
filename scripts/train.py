@@ -5,11 +5,13 @@ from tiny_gpt import (
     get_batch,
     train_val_split,
     BigramLM,
+    PositionalBigramLM
 )
 
 BATCH_SIZE = 16
 BLOCK_SIZE = 8
-# MAX_STEPS = 10
+# MAX_STEPS = 1
+EMB_SIZE = 8
 MAX_STEPS = 10_000
 
 
@@ -25,7 +27,9 @@ def main():
     encoded = tokenizer.encode(raw_data)
     data = torch.tensor(encoded, dtype=torch.long)
     train_data, val_data = train_val_split(data, val_frac=0.1)
-    model = BigramLM(tokenizer.vocab_size)
+    # model = BigramLM(tokenizer.vocab_size)
+    model = PositionalBigramLM(vocab_size=tokenizer.vocab_size, block_size=BLOCK_SIZE, emb_size=EMB_SIZE)
+    model(torch.zeros(BATCH_SIZE, BLOCK_SIZE, dtype=torch.long))
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3)
     model.train()
     for step in range(MAX_STEPS):
