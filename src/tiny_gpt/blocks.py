@@ -3,17 +3,17 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class SelfAttentionHead(nn.Module):
-    def __init__(self, context_window, emb_size, head_dim):
+    def __init__(self, block_size: int, emb_size: int, head_dim: int):
         super().__init__()
         self.keys = nn.Linear(emb_size, head_dim, bias=False)
         self.query = nn.Linear(emb_size, head_dim, bias=False)
         self.values = nn.Linear(emb_size, head_dim, bias=False)
         self.register_buffer(
             "tril",
-            torch.tril(torch.ones(context_window, context_window))
+            torch.tril(torch.ones(block_size, block_size))
         )
         self.head_dim = head_dim
-        self.context_window = context_window
+        self.block_size = block_size
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         _, T, _ = x.shape
@@ -23,3 +23,23 @@ class SelfAttentionHead(nn.Module):
         score = score.masked_fill(self.tril[:T, :T] == 0, float("-inf"))
         score = F.softmax(score, dim=-1)
         return score @ v
+
+class MultiHeadAttention(nn.Module):
+    def __init__(self, block_size: int, emb_size: int, num_heads: int):
+        if emb_size % num_heads != 0:
+            raise ValueError("`emb_size % num_heads` should be 0")
+        super().__init__()            
+        self.heads = nn.ModuleList(
+            [
+                SelfAttentionHead(block_size, emb_size, emb_size // num_heads) 
+                for _ in range(num_heads)
+            ]
+        )
+        self.proj = nn.Linear(emb_size, emb_size)
+    
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        head_outs = [head(x) for head in self.heads]
+        x = torch.cat(head_outs, dim=-1)
+        x = self.proj(x)
+        return x
+
