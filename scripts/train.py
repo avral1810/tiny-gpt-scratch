@@ -9,6 +9,7 @@ from torch.utils.tensorboard import SummaryWriter
 from tiny_gpt import (
     CharTokenizer,
     get_device,
+    get_criterion_class,
     get_model_class,
     get_optimizer_class,
     get_scheduler_class,
@@ -41,49 +42,49 @@ def read_text(path: str | Path, lowercase: bool = True) -> str:
     return text.lower() if lowercase else text
 
 
-def build_model(config: dict, vocab_size: int) -> torch.nn.Module:
-    model_config = config["model"]
-    model_class = get_model_class(model_config["name"])
-    return model_class(vocab_size=vocab_size, **model_config.get("kwargs", {}))
-
-
-@time_execution
-def main(config_file_name: str = "configs/positional_bigram.yaml") -> None:
-    config = get_config(file_name=config_file_name)
-    set_seed(config["experiment"].get("seed", 42))
-
-    device_str = config["runtime"].get("device", "auto")
-    device = get_device() if device_str == "auto" else torch.device(device_str)
-
-    data_config = config["data"]
-    raw_text = read_text(
-        data_config["input_path"],
-        lowercase=data_config.get("lowercase", True),
-    )
+def prepare_data(
+    input_path: str | Path,
+    lowercase: bool,
+    val_frac: float,
+) -> tuple[CharTokenizer, torch.Tensor, torch.Tensor]:
+    raw_text = read_text(input_path, lowercase=lowercase)
     tokenizer = CharTokenizer(raw_text)
     encoded = tokenizer.encode(raw_text)
     data = torch.tensor(encoded, dtype=torch.long)
-    train_data, val_data = train_val_split(data, val_frac=data_config.get("val_frac", 0.1))
+    train_data, val_data = train_val_split(data, val_frac=val_frac)
+    return tokenizer, train_data, val_data
 
-    model = build_model(config, vocab_size=tokenizer.vocab_size).to(device)
+
+def run_training(
+    config: dict,
+    tokenizer: CharTokenizer,
+    train_data: torch.Tensor,
+    val_data: torch.Tensor,
+    device: torch.device,
+) -> None:
+    data_config = config["data"]
+    model_config = config["model"]
+    model = get_model_class(model_config["name"])(
+        vocab_size=tokenizer.vocab_size,
+        **model_config.get("kwargs", {}),
+    ).to(device)
+
     train_config = config["train"]
-    optimizer_class = get_optimizer_class(train_config["optimizer"])
-    optimizer = optimizer_class(
+    criterion = get_criterion_class(train_config["criterion"])()
+    optimizer = get_optimizer_class(train_config["optimizer"])(
         model.parameters(),
         lr=train_config["learning_rate"],
         weight_decay=train_config.get("weight_decay", 0.0),
     )
-
     scheduler = None
     scheduler_config = train_config.get("scheduler")
     if scheduler_config is not None:
-        scheduler_class = get_scheduler_class(scheduler_config["name"])
         scheduler_kwargs = {
             key: value
             for key, value in scheduler_config.items()
             if key != "name"
         }
-        scheduler = scheduler_class(optimizer, **scheduler_kwargs)
+        scheduler = get_scheduler_class(scheduler_config["name"])(optimizer, **scheduler_kwargs)
 
     writer = create_writer(config)
     writer.add_text("config/yaml", f"```yaml\n{yaml.safe_dump(config)}\n```")
@@ -108,6 +109,7 @@ def main(config_file_name: str = "configs/positional_bigram.yaml") -> None:
                 model=model,
                 train_data=train_data,
                 val_data=val_data,
+                criterion=criterion,
                 batch_size=batch_size,
                 block_size=block_size,
                 eval_iters=eval_iters,
@@ -142,6 +144,7 @@ def main(config_file_name: str = "configs/positional_bigram.yaml") -> None:
         train_one_step(
             model=model,
             data=train_data,
+            criterion=criterion,
             optimizer=optimizer,
             batch_size=batch_size,
             block_size=block_size,
@@ -151,20 +154,48 @@ def main(config_file_name: str = "configs/positional_bigram.yaml") -> None:
         if scheduler is not None:
             scheduler.step()
 
-    generation_config = config.get("generation", {})
-    prompts = generation_config.get("prompts", [])
-    if prompts:
-        for sample in generate_samples(
-            model=model,
-            tokenizer=tokenizer,
-            prompts=prompts,
-            max_new_tokens=generation_config.get("max_new_tokens", 200),
-            device=device,
-        ):
-            print(sample)
-            print()
+    generation_config = config.get("generation")
+    if generation_config is not None:
+        prompts = generation_config.get("prompts", [])
+        generation_block_size = generation_config.get("block_size") or block_size
+        if prompts:
+            for sample in generate_samples(
+                model=model,
+                tokenizer=tokenizer,
+                prompts=prompts,
+                max_new_tokens=generation_config.get("max_new_tokens", 200),
+                block_size=generation_block_size,
+                device=device,
+                temperature=generation_config.get("temperature", 1.0),
+                top_k=generation_config.get("top_k"),
+            ):
+                print(sample)
+                print()
 
     writer.close()
+
+
+@time_execution
+def main(config_file_name: str = "configs/positional_bigram.yaml") -> None:
+    config = get_config(file_name=config_file_name)
+    set_seed(config["experiment"].get("seed", 42))
+
+    device_str = config["runtime"].get("device", "auto")
+    device = get_device() if device_str == "auto" else torch.device(device_str)
+
+    data_config = config["data"]
+    tokenizer, train_data, val_data = prepare_data(
+        input_path=data_config["input_path"],
+        lowercase=data_config.get("lowercase", True),
+        val_frac=data_config.get("val_frac", 0.1),
+    )
+    run_training(
+        config=config,
+        tokenizer=tokenizer,
+        train_data=train_data,
+        val_data=val_data,
+        device=device,
+    )
 
 
 if __name__ == "__main__":

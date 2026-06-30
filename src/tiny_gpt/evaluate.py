@@ -8,6 +8,7 @@ def estimate_loss(
     model: torch.nn.Module,
     train_data: torch.Tensor,
     val_data: torch.Tensor,
+    criterion: torch.nn.Module,
     batch_size: int,
     block_size: int,
     eval_iters: int,
@@ -23,7 +24,8 @@ def estimate_loss(
             x, y = get_batch(data, batch_size=batch_size, block_size=block_size)
             x = x.to(device)
             y = y.to(device)
-            _, loss = model(x, y)
+            logits = model(x)
+            loss = criterion(logits, y)
             total_loss += loss.item()
         losses[split] = total_loss / eval_iters
 

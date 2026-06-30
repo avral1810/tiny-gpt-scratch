@@ -1,22 +1,23 @@
 experiment:
-  name: positional_bigram
+  name: single_head_attention_shakespeare
   seed: 42
 
 runtime:
   device: auto
 
 data:
-  input_path: data/raw/tiny.txt
+  input_path: data/raw/tinyshakespeare.txt
   val_frac: 0.1
   lowercase: true
-  batch_size: 16
-  block_size: 8
+  batch_size: 64
+  block_size: 64
 
 model:
-  name: positional_bigram
+  name: single_head_attention
   kwargs:
-    block_size: 8
-    emb_size: 32
+    block_size: 64
+    emb_size: 64
+    head_dim: 64
 
 train:
   criterion: lm_cross_entropy
@@ -29,14 +30,14 @@ train:
   scheduler: null
 
 generation:
-  block_size: 8
+  block_size: 64
   temperature: 1.0
   top_k: null
   prompts:
-    - happy
-    - model
-    - nemar
-  max_new_tokens: 200
+    - "juliet"
+    - "romeo"
+    - "first"
+  max_new_tokens: 300
 
 outputs:
   checkpoint_dir: checkpoints

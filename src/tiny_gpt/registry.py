@@ -1,18 +1,26 @@
 import torch
 from torch import nn
 
-from tiny_gpt.model import BigramLM, PositionalBigramLM
+from tiny_gpt.bigrams import BigramLM, PositionalBigramLM
+from tiny_gpt.attention import SingleHeadAttentionLM
+from tiny_gpt.losses import LanguageModelingCrossEntropyLoss
 
 
 MODEL_REGISTRY: dict[str, type[nn.Module]] = {
     "bigram": BigramLM,
     "positional_bigram": PositionalBigramLM,
+    "single_head_attention": SingleHeadAttentionLM,
 }
 
 OPTIMIZER_REGISTRY: dict[str, type[torch.optim.Optimizer]] = {
     "adam": torch.optim.Adam,
     "adamw": torch.optim.AdamW,
     "sgd": torch.optim.SGD,
+}
+
+CRITERION_REGISTRY: dict[str, type[nn.Module]] = {
+    "lm_cross_entropy": LanguageModelingCrossEntropyLoss,
+    "language_modeling_cross_entropy": LanguageModelingCrossEntropyLoss,
 }
 
 SCHEDULER_REGISTRY = {
@@ -34,6 +42,15 @@ def get_optimizer_class(optimizer_name: str) -> type[torch.optim.Optimizer]:
             f"Unknown optimizer '{optimizer_name}'. Available optimizers: {available}"
         )
     return OPTIMIZER_REGISTRY[optimizer_name]
+
+
+def get_criterion_class(criterion_name: str) -> type[nn.Module]:
+    if criterion_name not in CRITERION_REGISTRY:
+        available = ", ".join(sorted(CRITERION_REGISTRY))
+        raise ValueError(
+            f"Unknown criterion '{criterion_name}'. Available criteria: {available}"
+        )
+    return CRITERION_REGISTRY[criterion_name]
 
 
 def get_scheduler_class(scheduler_name: str):

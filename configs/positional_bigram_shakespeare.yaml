@@ -1,15 +1,15 @@
 experiment:
-  name: positional_bigram
+  name: positional_bigram_shakespeare
   seed: 42
 
 runtime:
   device: auto
 
 data:
-  input_path: data/raw/tiny.txt
+  input_path: data/raw/tinyshakespeare.txt
   val_frac: 0.1
   lowercase: true
-  batch_size: 16
+  batch_size: 32
   block_size: 8
 
 model:
@@ -33,10 +33,10 @@ generation:
   temperature: 1.0
   top_k: null
   prompts:
-    - happy
-    - model
-    - nemar
-  max_new_tokens: 200
+    - "juliet"
+    - "romeo"
+    - "first"
+  max_new_tokens: 300
 
 outputs:
   checkpoint_dir: checkpoints
