@@ -1,8 +1,18 @@
 from tiny_gpt.tokenizer import CharTokenizer
 from tiny_gpt.data import get_batch, train_val_split
 from tiny_gpt.bigrams import BigramLM, PositionalBigramLM
-from tiny_gpt.attention_models import SingleHeadAttentionLM
-from tiny_gpt.model_blocks import SelfAttentionHead
+from tiny_gpt.attention_models import (
+    MultiHeadAttentionLM,
+    SingleHeadAttentionLM,
+    TinyGPT,
+    TransformersLM,
+)
+from tiny_gpt.model_blocks import (
+    FeedForward,
+    MultiHeadAttention,
+    SelfAttentionHead,
+    TransformerBlock,
+)
 from tiny_gpt.registry import (
     get_criterion_class,
     get_model_class,
@@ -24,7 +34,13 @@ __all__ = [
     "PositionalBigramLM",
     "BigramLM",
     "SingleHeadAttentionLM",
+    "MultiHeadAttentionLM",
+    "TransformersLM",
+    "TinyGPT",
     "SelfAttentionHead",
+    "MultiHeadAttention",
+    "FeedForward",
+    "TransformerBlock",
     "get_model_class",
     "get_optimizer_class",
     "get_criterion_class",

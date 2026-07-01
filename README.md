@@ -186,10 +186,8 @@ x = x + FeedForward(LayerNorm(x))
 Run:
 
 ```bash
-PYTHONPATH=src .venv/bin/python scripts/train.py --config transfomer_attention_shakespeare.yaml
+PYTHONPATH=src .venv/bin/python scripts/train.py --config transformer_attention_shakespeare.yaml
 ```
-
-Note: the current config filename is `transfomer_attention_shakespeare.yaml`.
 
 ### 6. Tiny GPT
 
@@ -222,7 +220,7 @@ clean apples-to-apples benchmark after changing code or hyperparameters.
 | Positional bigram, Shakespeare | `positional_bigram_shakespeare.yaml` | 4000 | 2.4622 | 2.4270 |
 | Single-head attention | `single_head_attention_shakespeare.yaml` | 9500 | 1.8632 | 1.9531 |
 | Multi-head attention | `multi_head_attention_shakespeare.yaml` | 9500 | 1.8632 | 1.9531 |
-| One Transformer block | `transfomer_attention_shakespeare.yaml` | 9500 | 1.5883 | 1.7409 |
+| One Transformer block | `transformer_attention_shakespeare.yaml` | 9500 | 1.5883 | 1.7409 |
 | Tiny GPT, 2 layers | `tiny_gpt_shakespeare.yaml` | 10000 | 1.4323 | 1.6116 |
 
 ## Generation

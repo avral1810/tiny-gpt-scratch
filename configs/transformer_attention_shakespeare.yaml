@@ -1,5 +1,5 @@
 experiment:
-  name: transformer_attention_shakespear
+  name: transformer_attention_shakespeare
   seed: 42
 
 runtime:

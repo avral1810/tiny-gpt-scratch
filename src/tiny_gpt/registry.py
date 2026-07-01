@@ -16,8 +16,8 @@ MODEL_REGISTRY: dict[str, type[nn.Module]] = {
     "positional_bigram": PositionalBigramLM,
     "single_head_attention": SingleHeadAttentionLM,
     "multi_head_attention": MultiHeadAttentionLM,
-    'transformer': TransformersLM,
-    'tiny_gpt': TinyGPT,
+    "transformer": TransformersLM,
+    "tiny_gpt": TinyGPT,
 }
 
 OPTIMIZER_REGISTRY: dict[str, type[torch.optim.Optimizer]] = {
