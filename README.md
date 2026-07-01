@@ -211,19 +211,19 @@ PYTHONPATH=src .venv/bin/python scripts/train.py --config tiny_gpt_shakespeare.y
 
 ## Local Results
 
-These validation losses are read from existing local checkpoints in this repo.
+These losses are read from existing local TensorBoard event files in `runs/`.
 They were not rerun while writing this README, so rerun the configs if you want a
 clean apples-to-apples benchmark after changing code or hyperparameters.
 
-| Stage | Config | Best checkpoint step | Val loss |
-|---|---|---:|---:|
-| Bigram | `bigram.yaml` | 5500 | 2.5636 |
-| Positional bigram | `positional_bigram.yaml` | 4000 | 2.4270 |
-| Positional bigram, Shakespeare | `positional_bigram_shakespeare.yaml` | not run | TBD |
-| Single-head attention | `single_head_attention_shakespeare.yaml` | 9500 | 1.9531 |
-| Multi-head attention | `multi_head_attention_shakespeare.yaml` | 9500 | 1.9531 |
-| One Transformer block | `transfomer_attention_shakespeare.yaml` | 9500 | 1.7409 |
-| Tiny GPT, 2 layers | `tiny_gpt_shakespeare.yaml` | 10000 | 1.6116 |
+| Stage | Config | Best step | Train loss | Val loss |
+|---|---|---:|---:|---:|
+| Bigram | `bigram.yaml` | 5500 | 2.1926 | 2.5636 |
+| Positional bigram | `positional_bigram.yaml` | 4000 | 2.4622 | 2.4270 |
+| Positional bigram, Shakespeare | `positional_bigram_shakespeare.yaml` | 4000 | 2.4622 | 2.4270 |
+| Single-head attention | `single_head_attention_shakespeare.yaml` | 9500 | 1.8632 | 1.9531 |
+| Multi-head attention | `multi_head_attention_shakespeare.yaml` | 9500 | 1.8632 | 1.9531 |
+| One Transformer block | `transfomer_attention_shakespeare.yaml` | 9500 | 1.5883 | 1.7409 |
+| Tiny GPT, 2 layers | `tiny_gpt_shakespeare.yaml` | 10000 | 1.4323 | 1.6116 |
 
 ## Generation
 
