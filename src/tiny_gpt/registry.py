@@ -2,7 +2,12 @@ import torch
 from torch import nn
 
 from tiny_gpt.bigrams import BigramLM, PositionalBigramLM
-from tiny_gpt.attention import SingleHeadAttentionLM, MultiHeadAttentionLM
+from tiny_gpt.attention_models import (
+    SingleHeadAttentionLM,
+    MultiHeadAttentionLM,
+    TransformersLM,
+    TinyGPT,
+)
 from tiny_gpt.losses import LanguageModelingCrossEntropyLoss
 
 
@@ -10,7 +15,9 @@ MODEL_REGISTRY: dict[str, type[nn.Module]] = {
     "bigram": BigramLM,
     "positional_bigram": PositionalBigramLM,
     "single_head_attention": SingleHeadAttentionLM,
-    "multi_head_attention": MultiHeadAttentionLM
+    "multi_head_attention": MultiHeadAttentionLM,
+    'transformer': TransformersLM,
+    'tiny_gpt': TinyGPT,
 }
 
 OPTIMIZER_REGISTRY: dict[str, type[torch.optim.Optimizer]] = {

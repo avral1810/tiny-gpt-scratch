@@ -43,3 +43,27 @@ class MultiHeadAttention(nn.Module):
         x = self.proj(x)
         return x
 
+class FeedForward(nn.Module):
+    def __init__(self, emb_size: int, scale: int=4):
+        super().__init__()
+        self.ffwd = nn.Sequential(
+            nn.Linear(emb_size, scale * emb_size),
+            nn.GELU(),
+            nn.Linear(scale * emb_size, emb_size)
+        )
+    
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.ffwd(x)
+
+class TransformerBlock(nn.Module):
+    def __init__(self, block_size: int, emb_size: int, num_heads: int):
+        super().__init__()
+        self.multi_heads = MultiHeadAttention(block_size, emb_size, num_heads)
+        self.ln1 = nn.LayerNorm(emb_size) 
+        self.ff = FeedForward(emb_size)
+        self.ln2 = nn.LayerNorm(emb_size) 
+    
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = x + self.multi_heads(self.ln1(x))
+        x = x + self.ff(self.ln2(x))
+        return x

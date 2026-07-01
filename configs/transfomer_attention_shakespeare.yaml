@@ -1,0 +1,44 @@
+experiment:
+  name: transformer_attention_shakespear
+  seed: 42
+
+runtime:
+  device: auto
+
+data:
+  input_path: data/raw/tinyshakespeare.txt
+  val_frac: 0.1
+  lowercase: true
+  batch_size: 64
+  block_size: 64
+
+model:
+  name: transformer
+  kwargs:
+    block_size: 64
+    emb_size: 64
+    num_heads: 16
+
+train:
+  criterion: lm_cross_entropy
+  max_steps: 10000
+  eval_interval: 500
+  eval_iters: 20
+  optimizer: adamw
+  learning_rate: 0.001
+  weight_decay: 0.0
+  scheduler: null
+
+generation:
+  block_size: 64
+  temperature: 0.8
+  top_k: 40
+  prompts:
+    - "juliet"
+    - "romeo"
+    - "first"
+  max_new_tokens: 300
+
+outputs:
+  checkpoint_dir: checkpoints
+  run_dir: runs

@@ -1,7 +1,7 @@
 import torch
 
 from tiny_gpt.data import get_batch
-
+from tiny_gpt.utils import time_execution
 
 def train_one_step(
     model: torch.nn.Module,

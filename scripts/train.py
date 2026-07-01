@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 from datetime import datetime
 from pathlib import Path
+from time import perf_counter
 
 import torch
 import yaml
@@ -103,6 +104,7 @@ def run_training(
     eval_iters = train_config["eval_iters"]
 
     print(f"===Running Experiment `{exp_name}` on {device}===")
+    start = perf_counter()
     for step in range(max_steps + 1):
         if step % eval_interval == 0:
             losses = estimate_loss(
@@ -118,8 +120,10 @@ def run_training(
             print(
                 f"@Step {step} | "
                 f"train_loss={losses['train']:.4f} | "
-                f"val_loss={losses['val']:.4f}"
+                f"val_loss={losses['val']:.4f} | "
+                f"Time Taken={perf_counter() - start:.2f}s"
             )
+            start = perf_counter()
             writer.add_scalar("loss/train", losses["train"], step)
             writer.add_scalar("loss/val", losses["val"], step)
             writer.add_scalar("optimizer/learning_rate", optimizer.param_groups[0]["lr"], step)
